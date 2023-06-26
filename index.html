@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Control</title>
+    <style>
+.buttons {
+  /*
+  align-items: center;
+  */
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.cam {
+  width: 95vw;
+  height: 75vh;
+}
+
+.frame {
+  height: 100%;
+  width: 100%;
+}
+
+button {
+  margin-top: 20px;
+  margin: 5px;
+}
+    </style>
+  </head>
+  <body>
+
+    Keyboard control:
+    <ul>
+      <li>E to enslave (manual control of motors)</li>
+      <li>U to unslave (ultrasonic mode)</li>
+      <li>Control when enslaved: WASD for movement, Q to stop</li>
+    </ul>
+
+    <center>
+      <div class="cam">
+        <iframe src="http://192.168.0.227:8000/" class="frame"></iframe> 
+      </div>
+    </center>
+
+    <br>
+
+    Button control:
+
+    <center>
+      <button id="E">Enslave</button>
+      <button id="L">Left</button>
+      <button id="R">Right</button>
+      <button id="F">Front</button>
+      <button id="B">Back</button>
+      <button id="S">Stop</button>
+      <button id="U">Unslave</button>
+    </center>
+
+    <script>
+      const buttons = document.getElementsByTagName('button');
+      for (const button of buttons) {
+        button.onclick = () => {
+          // send a post request to /send/<button.id>
+          fetch(`/send/${button.id}`, { method: 'POST' });
+        }
+      }
+      const keys = ['E', 'L', 'R', 'F', 'B', 'U'];
+      const keycodes = keys.map(k => 'Key' + k);
+      const keycode_to_msg = {
+        'KeyW': 'F',
+        'KeyA': 'L',
+        'KeyS': 'B',
+        'KeyD': 'R',
+        'KeyQ': 'S',
+        'KeyE': 'E',
+        'KeyU': 'U',
+      }
+      window.addEventListener('keydown', (event) => {
+        const msg = keycode_to_msg[event.code];
+        if (!msg) {
+          return;
+        }
+        console.log('Sending ' + msg);
+        fetch(`/send/${msg}`, { method: 'POST' });
+      })
+    </script>
+  </body>
+</html>
+
